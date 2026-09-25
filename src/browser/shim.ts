@@ -612,6 +612,13 @@ ensureSocket();
 
 export const contextBridge = {
   exposeInMainWorld(_key: string, _api: unknown): void {
+    if (_key === "electronBridge" && _api !== null && typeof _api === "object") {
+      const browserApi = { ..._api };
+      Reflect.deleteProperty(browserApi, "showContextMenu");
+      Reflect.set(window, _key, browserApi);
+      return;
+    }
+
     Reflect.set(window, _key, _api);
   },
 };
