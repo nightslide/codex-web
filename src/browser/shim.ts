@@ -10,6 +10,8 @@ import {
   openSelectWorkspaceRootDialog,
   type WorkspaceDirectoryEntries,
 } from "./workspace-root-dialog";
+import { chooseOneDirectory } from "./directory-dialog-bridge";
+import { resolveDesktopMcp } from "./desktop-mcp";
 
 type IpcListener = (event: unknown, ...args: unknown[]) => void;
 
@@ -108,6 +110,7 @@ type StatsigGateEvaluation = {
 };
 
 type ElectronShimState = {
+  resolveDesktopMcp?: typeof resolveDesktopMcp;
   initialRoute?: string;
   initialSidebarState?: boolean;
   closeSidebar?: () => void;
@@ -367,6 +370,7 @@ const themeMediaQuery = matchMedia("(prefers-color-scheme: dark)");
 const mobileMediaQuery = matchMedia("(max-width: 768px)");
 const initialSidebarState = !mobileMediaQuery.matches;
 const electronShim = (window.__ELECTRON_SHIM__ ??= {});
+electronShim.resolveDesktopMcp = resolveDesktopMcp;
 const buildFlavor: "prod" | "dev" | "agent" | string = "prod";
 
 Object.assign(globalThis, {
@@ -586,10 +590,35 @@ export const ipcRenderer = {
   },
 };
 
+addIpcListener("codex-web:open-directory-dialog", async (_event, requestId) => {
+  if (typeof requestId !== "string") {
+    return;
+  }
+
+  try {
+    const paths = await chooseOneDirectory(() =>
+      openSelectWorkspaceRootDialog({
+        listDirectory: requestWorkspaceDirectoryEntries,
+      }),
+    );
+    ipcRenderer.send("codex-web:directory-dialog-result", requestId, paths);
+  } catch (error) {
+    console.error("[electron-stub] directory dialog failed", error);
+    ipcRenderer.send("codex-web:directory-dialog-result", requestId, []);
+  }
+});
+
 ensureSocket();
 
 export const contextBridge = {
   exposeInMainWorld(_key: string, _api: unknown): void {
+    if (_key === "electronBridge" && _api !== null && typeof _api === "object") {
+      const browserApi = { ..._api };
+      Reflect.deleteProperty(browserApi, "showContextMenu");
+      Reflect.set(window, _key, browserApi);
+      return;
+    }
+
     Reflect.set(window, _key, _api);
   },
 };
