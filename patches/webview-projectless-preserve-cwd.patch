@@ -1,0 +1,16 @@
+--- a/webview/assets/app-initial-236e1501144c.js
++++ b/webview/assets/app-initial-236e1501144c.js
+@@ -156715,6 +156715,13 @@
+   workspaceKind: r,
+ }) {
+   if (r !== `projectless`) return e ?? t;
++  // Projectless metadata can coexist with a local project's cwd.
++  // Keep that cwd when it is inside the fallback workspace root.
++  if (window.__ELECTRON_SHIM__ && e != null && t != null && t !== `~`) {
++    let s = f_(e).replace(/\/+$/, ``),
++      l = f_(t).replace(/\/+$/, ``);
++    if (l !== `` && (s === l || s.startsWith(`${l}/`))) return e;
++  }
+   let i = n == null || n === `~` ? t : n;
+   if (i == null || i === `~`) return e === `~` ? null : (e ?? null);
+   let a = f_(i).replace(/\/+$/, ``);
