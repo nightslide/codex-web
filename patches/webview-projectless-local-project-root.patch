@@ -1,0 +1,14 @@
+--- a/webview/assets/app-initial-236e1501144c.js
++++ b/webview/assets/app-initial-236e1501144c.js
+@@ -284210,8 +284210,9 @@
+         if (!d || !lTi(d).length) return;
+         let f = d;
+         if (
+-          e.workspaceKind === `projectless` ||
+-          s?.projectlessThreadIds?.has(e.conversationId) === !0
++          (e.workspaceKind === `projectless` ||
++            s?.projectlessThreadIds?.has(e.conversationId) === !0) &&
++          (l != null || c !== o || kEi(n, d) == null)
+         )
+           return;
+         let p = c !== o,
