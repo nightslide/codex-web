@@ -12,6 +12,7 @@ import {
 } from "./workspace-root-dialog";
 import { chooseOneDirectory } from "./directory-dialog-bridge";
 import { resolveDesktopMcp } from "./desktop-mcp";
+import { wrapWorkspaceFileServices } from "./workspace-file-download";
 
 // HTTP private IP origins do not expose randomUUID, but do expose getRandomValues.
 const browserCrypto = globalThis.crypto;
@@ -130,6 +131,7 @@ type StatsigGateEvaluation = {
 
 type ElectronShimState = {
   resolveDesktopMcp?: typeof resolveDesktopMcp;
+  wrapServices?: typeof wrapWorkspaceFileServices;
   initialRoute?: string;
   initialSidebarState?: boolean;
   closeSidebar?: () => void;
@@ -390,6 +392,7 @@ const mobileMediaQuery = matchMedia("(max-width: 768px)");
 const initialSidebarState = !mobileMediaQuery.matches;
 const electronShim = (window.__ELECTRON_SHIM__ ??= {});
 electronShim.resolveDesktopMcp = resolveDesktopMcp;
+electronShim.wrapServices = wrapWorkspaceFileServices;
 const buildFlavor: "prod" | "dev" | "agent" | string = "prod";
 
 Object.assign(globalThis, {
