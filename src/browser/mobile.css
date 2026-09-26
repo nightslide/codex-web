@@ -105,7 +105,7 @@
     min-height: 44px;
   }
 
-  #root aside[data-app-shell-left-panel-appearance] {
+  #root aside[data-codex-mobile-sidebar-open] {
     position: absolute !important;
     inset-block: 0;
     inset-inline-start: 0;
@@ -114,13 +114,16 @@
     background-color: var(--color-surface);
   }
 
-  #root aside[data-app-shell-left-panel-appearance]:not([style*="opacity: 0"]) {
+  #root aside[data-codex-mobile-sidebar-open="true"] {
     width: 100% !important;
     min-width: 100% !important;
     max-width: 100% !important;
   }
 
-  #root aside[data-app-shell-left-panel-appearance][style*="opacity: 0"] {
+  #root aside[data-codex-mobile-sidebar-open="false"] {
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
     visibility: hidden;
     pointer-events: none;
   }
