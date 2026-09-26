@@ -173,9 +173,13 @@
 
   .composer-home-top-menu {
     width: 100%;
-    max-height: min(
-      320px,
-      calc(var(--codex-mobile-viewport-height, 100dvh) - 144px)
+    max-height: calc(
+      100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) -
+        16px
+    ) !important;
+    max-height: calc(
+      100dvh - env(safe-area-inset-top, 0px) -
+        env(safe-area-inset-bottom, 0px) - 16px
     ) !important;
   }
 

@@ -95,22 +95,11 @@ function updateViewport(doc: Document, win: Window): void {
     return;
   }
 
-  const keyboardOcclusion = Math.max(
-    0,
-    win.innerHeight - visualViewport.height,
-  );
-  // A tap on the attachment button can move focus out of the editor before
-  // Safari has finished dismissing its keyboard. Keep the visible viewport
-  // until the keyboard actually closes.
-  const keepOpenKeyboard =
-    root.hasAttribute("data-codex-mobile-keyboard-open") &&
-    keyboardOcclusion >= KEYBOARD_OCCLUSION_THRESHOLD;
-
   const viewport = resolveFocusedViewport(
     win.innerHeight,
     visualViewport.height,
     visualViewport.offsetTop,
-    hasFocusedEditable(doc) || keepOpenKeyboard,
+    hasFocusedEditable(doc),
     visualViewport.scale,
   );
 
@@ -125,6 +114,10 @@ function updateViewport(doc: Document, win: Window): void {
   );
   root.style.setProperty("--codex-mobile-viewport-top", `${viewport.top}px`);
 
+  const keyboardOcclusion = Math.max(
+    0,
+    win.innerHeight - visualViewport.height,
+  );
   if (keyboardOcclusion >= KEYBOARD_OCCLUSION_THRESHOLD) {
     root.setAttribute("data-codex-mobile-keyboard-open", "true");
   } else {
