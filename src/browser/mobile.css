@@ -4,6 +4,14 @@
     width: 100%;
     max-width: 100%;
     overflow-x: clip;
+    background-color: var(--color-surface, #ffffff);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html,
+    body {
+      background-color: var(--color-surface, #181818);
+    }
   }
 
   html {
