@@ -13,6 +13,13 @@ import {
 import { chooseOneDirectory } from "./directory-dialog-bridge";
 import { resolveDesktopMcp } from "./desktop-mcp";
 import { wrapWorkspaceFileServices } from "./workspace-file-download";
+import { installMobileLayout } from "./mobile-layout";
+import { installMobileDialogStylesheet } from "./workspace-root-dialog";
+
+installMobileLayout();
+void installMobileDialogStylesheet().catch((error) => {
+  console.error("[mobile-layout] Failed to load dialog styles", error);
+});
 
 // HTTP private IP origins do not expose randomUUID, but do expose getRandomValues.
 const browserCrypto = globalThis.crypto;
@@ -388,7 +395,9 @@ function requestWorkspaceDirectoryEntries(
 }
 
 const themeMediaQuery = matchMedia("(prefers-color-scheme: dark)");
-const mobileMediaQuery = matchMedia("(max-width: 768px)");
+const mobileMediaQuery = matchMedia(
+  "(max-width: 767px), (max-height: 500px) and (pointer: coarse)",
+);
 const initialSidebarState = !mobileMediaQuery.matches;
 const electronShim = (window.__ELECTRON_SHIM__ ??= {});
 electronShim.resolveDesktopMcp = resolveDesktopMcp;

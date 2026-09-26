@@ -1,0 +1,231 @@
+.codex-mobile-folder-row {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+}
+
+.codex-mobile-folder-select {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.codex-mobile-folder-select > [data-codex-mobile-folder-name] {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.codex-mobile-open-folder {
+  display: none;
+}
+
+@media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
+  [data-codex-mobile-dialog="workspace-root"] {
+    position: fixed !important;
+    inset-block-start: calc(
+      var(--codex-mobile-viewport-top, 0px) +
+        max(8px, env(safe-area-inset-top, 0px))
+    ) !important;
+    inset-inline-start: max(8px, env(safe-area-inset-left, 0px)) !important;
+    inset-inline-end: max(8px, env(safe-area-inset-right, 0px)) !important;
+    inset-block-end: auto !important;
+    height: calc(
+      var(--codex-mobile-viewport-height, 100dvh) -
+        max(8px, env(safe-area-inset-top, 0px)) -
+        max(8px, env(safe-area-inset-bottom, 0px))
+    ) !important;
+    display: flex;
+    width: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    transform: none !important;
+    translate: none !important;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  [data-codex-mobile-dialog-form="workspace-root"] {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  [data-codex-mobile-dialog-body="workspace-root"] {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+  }
+
+  [data-codex-mobile-dialog-body="workspace-root"] > :first-child {
+    padding-inline-end: 44px;
+  }
+
+  [data-codex-mobile-dialog-body="workspace-root"] > :nth-child(2) {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  [data-codex-mobile-folder-picker="true"] {
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 1 1 auto;
+  }
+
+  .codex-mobile-folder-picker-content {
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  [data-codex-mobile-folder-list="true"] {
+    min-height: 4rem;
+    flex: 1 1 auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .codex-mobile-folder-row {
+    align-items: stretch;
+    gap: 4px;
+    padding-inline: 4px;
+  }
+
+  .codex-mobile-folder-select {
+    min-height: 44px;
+    padding-block: 10px;
+  }
+
+  .codex-mobile-folder-select > [data-codex-mobile-folder-name] {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .codex-mobile-open-folder {
+    display: inline-flex;
+    min-width: 56px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    border-radius: 8px;
+    color: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    touch-action: manipulation;
+  }
+
+  [data-codex-mobile-parent-button="true"] {
+    width: 44px;
+    height: 44px;
+  }
+
+  [data-codex-mobile-dialog-footer="workspace-root"] {
+    flex: 0 0 auto;
+    border-top: 1px solid
+      var(--color-token-border-default, rgb(127 127 127 / 20%));
+    padding: 12px 16px;
+  }
+
+  [data-codex-mobile-dialog-actions="workspace-root"] {
+    gap: 8px;
+  }
+
+  [data-codex-mobile-dialog-actions="workspace-root"] > button {
+    min-width: 0;
+    min-height: 44px;
+    flex: 1 1 0;
+    justify-content: center;
+    padding-inline: 8px;
+    white-space: normal;
+  }
+
+  [data-codex-mobile-dialog-close="workspace-root"] {
+    top: 8px !important;
+    right: 8px !important;
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    padding: 0;
+  }
+
+  [data-composer-overlay-floating-ui="true"]:has(.composer-home-top-menu) {
+    position: fixed !important;
+    inset-inline-start: max(8px, env(safe-area-inset-left, 0px)) !important;
+    inset-inline-end: max(8px, env(safe-area-inset-right, 0px)) !important;
+    inset-block-start: auto !important;
+    inset-block-end: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    transform: none !important;
+    translate: none !important;
+  }
+
+  .composer-home-top-menu {
+    width: 100%;
+    max-height: calc(
+      100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) -
+        16px
+    ) !important;
+    max-height: calc(
+      100dvh - env(safe-area-inset-top, 0px) -
+        env(safe-area-inset-bottom, 0px) - 16px
+    ) !important;
+  }
+
+  [data-slot="popover-content"][role="dialog"][data-state="open"]:has(
+      input[placeholder="Search projects"]
+    ) {
+    position: fixed !important;
+    inset-block-start: max(8px, env(safe-area-inset-top, 0px)) !important;
+    inset-inline-start: max(8px, env(safe-area-inset-left, 0px)) !important;
+    inset-inline-end: max(8px, env(safe-area-inset-right, 0px)) !important;
+    inset-block-end: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    transform: none !important;
+    translate: none !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    border-radius: 20px;
+  }
+
+  .composer-attachment-surface {
+    max-width: min(100%, calc(100vw - 32px));
+  }
+
+  .composer-attachment-surface .truncate,
+  .composer-attachment-surface .line-clamp-1 {
+    display: block;
+    min-width: 0;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+    -webkit-line-clamp: unset;
+  }
+
+  .composer-attachment-surface button,
+  .composer-attachment-surface [role="button"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .composer-attachment-surface :is(div, [role="group"]):has(> button) {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
