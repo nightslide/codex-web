@@ -1,0 +1,13 @@
+--- a/webview/assets/app-initial-236e1501144c.js
++++ b/webview/assets/app-initial-236e1501144c.js
+@@ -164638,6 +164638,10 @@
+           this.params = e;
+         }
+         prewarmConversation(e, t) {
++          // Browser reloads can abandon prewarmed threads on a shared daemon.
++          // Allocate the thread only when the user actually sends a message.
++          if (typeof window !== `undefined` && window.__ELECTRON_SHIM__)
++            return (t[Symbol.dispose]?.(), Promise.resolve(null));
+           let n = this.getRequestedThreadHistoryMode(`default`);
+           if (
+             this.params.prewarmedThreadManager.hasPrewarmedThread(
