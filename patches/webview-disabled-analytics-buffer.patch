@@ -1,0 +1,19 @@
+--- a/webview/assets/app-initial-236e1501144c.js
++++ b/webview/assets/app-initial-236e1501144c.js
+@@ -134117,6 +134117,16 @@
+       _storeEventToStorage(e) {
++        // Browser clients with analytics and storage disabled must not rebuild
++        // an in-memory JSON exposure backlog on every feature gate evaluation.
++        if (
++          typeof window !== `undefined` &&
++          window.__ELECTRON_SHIM__ != null &&
++          this._loggingEnabled === `disabled` &&
++          this._options?.disableStorage === !0
++        ) {
++          return;
++        }
+         let t = this._getStorageKey();
+         try {
+           let n = this._getEventsFromStorage(t);
+           (n.push(e),
+             n.length > i.EventRetryConstants.MAX_LOCAL_STORAGE &&
