@@ -10,3 +10,34 @@
    oU(`toggleSidebar`, o);
    let s;
    (r[4] !== i || r[5] !== e || r[6] !== t
+@@ -368172,7 +368172,7 @@
+       (hYa = `[&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_input]:pointer-events-auto [&_select]:pointer-events-auto [&_textarea]:pointer-events-auto`));
+   });
+ function _Ya(e) {
+-  let t = (0, yYa.c)(26),
++  let t = (0, yYa.c)(28),
+     {
+       appearance: n,
+       children: r,
+@@ -368263,10 +368263,11 @@
+     : (D = t[19]);
+   let O;
+   return (
+-    t[20] !== u || t[21] !== E || t[22] !== D || t[23] !== S || t[24] !== C
++    t[20] !== u || t[21] !== E || t[22] !== D || t[23] !== S || t[24] !== C || t[26] !== m || t[27] !== d
+       ? ((O = (0, bYa.jsxs)(Au.aside, {
+           className: S,
+           "data-app-shell-left-panel-appearance": u,
++          "data-codex-mobile-sidebar-open": !d || m,
+           style: C,
+           children: [E, D],
+         })),
+@@ -368275,6 +368276,8 @@
+         (t[22] = D),
+         (t[23] = S),
+         (t[24] = C),
++        (t[26] = m),
++        (t[27] = d),
+         (t[25] = O))
+       : (O = t[25]),
+     O
