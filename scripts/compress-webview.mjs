@@ -22,6 +22,12 @@ async function compressDirectory(directory) {
       const target = `${filename}.gz`;
       // Always refresh variants: patched assets keep their original filenames.
       if (compressed && compressed.length < original.length) {
+        const existing = await readFile(target).catch((error) => {
+          if (error.code !== "ENOENT") throw error;
+          return null;
+        });
+        // Preserve validators for unchanged assets across UI rebuilds.
+        if (existing?.equals(compressed)) continue;
         const temporary = `${target}.${process.pid}.tmp`;
         try {
           await writeFile(temporary, compressed);
