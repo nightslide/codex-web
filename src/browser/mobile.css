@@ -78,6 +78,11 @@
     min-height: 44px;
   }
 
+  #root [data-codex-composer-root] [contenteditable="true"] {
+    font-size: 16px !important;
+    line-height: 24px;
+  }
+
   @media (max-height: 500px) and (pointer: coarse) {
     #root
       [data-app-shell-main-surface]
