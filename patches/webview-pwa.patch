@@ -1,10 +1,15 @@
 --- a/webview/index.html
 +++ b/webview/index.html
-@@ -10,6 +10,7 @@
-     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+@@ -10,6 +10,11 @@
+-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
++    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
      <title>ChatGPT</title>
      <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
 +    <link rel="manifest" href="/manifest.json" />
++    <meta name="apple-mobile-web-app-capable" content="yes" />
++    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
++    <meta name="apple-mobile-web-app-title" content="Codex" />
++    <meta name="theme-color" content="#181818" />
      <style>
        /* Dependency CSS can load before app.css, so establish Tailwind's layer order here. */
        @layer theme, base, components, utilities;
