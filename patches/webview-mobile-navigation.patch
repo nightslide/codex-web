@@ -1,0 +1,49 @@
+--- a/webview/assets/app-primary-6b28e06666ff.js
++++ b/webview/assets/app-primary-6b28e06666ff.js
+@@ -157253,7 +157253,8 @@
+     C = u === void 0 ? null : u,
+     w = v === void 0 ? null : v,
+     T = MT(Em),
+-    E = kx(Pd) === `work`;
++    E = kx(Pd) === `work`,
++    touch = typeof window !== `undefined` && typeof window.matchMedia === `function` && window.matchMedia(`(pointer: coarse) and (hover: none)`).matches;
+   qw(!1, n);
+   let [D, O] = (0, Rjn.useState)(!1),
+     k = Vl(),
+@@ -157630,7 +157631,7 @@
+       (t[88] = Ye))
+     : (Ye = t[88]);
+   let Xe = uD(Ye),
+-    Ze = S && x,
++    Ze = S && x && !touch,
+     Qe;
+   t[89] !== n ||
+   t[90] !== Xe ||
+@@ -157642,12 +157643,13 @@
+   t[96] !== L ||
+   t[97] !== Je ||
+   t[98] !== T ||
+-  t[99] !== Ze
++  t[99] !== Ze ||
++  t[100] !== touch
+     ? ((Qe = (e) => {
+         let { archive: t, onMenuOpenChange: r } = e;
+         return (0, TQ.jsx)(Pjn, {
+           archive: t != null && (Ee || L) ? Me : t,
+-          getMenuItems: E
++          getMenuItems: E || touch
+             ? async () => (await Je(), Xe(`row-actions`))
+             : void 0,
+           onMenuOpenChange: r,
+@@ -157673,8 +157675,9 @@
+       (t[97] = Je),
+       (t[98] = T),
+       (t[99] = Ze),
+-      (t[100] = Qe))
+-    : (Qe = t[100]);
++      (t[100] = touch),
++      (t[101] = Qe))
++    : (Qe = t[101]);
+   let $e = Qe;
+   if (pe && !me) return null;
+   let et = ZOn,

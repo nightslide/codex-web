@@ -7,6 +7,43 @@ import {
 import React, { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { CloseIcon, FolderIcon, UpIcon } from "./icons";
+import {
+  lockPageScroll,
+  trapDialogTabKey,
+} from "./workspace-dialog-accessibility";
+
+const MOBILE_DIALOG_STYLESHEET_URL = new URL(
+  "./mobile-dialogs.css",
+  import.meta.url,
+).href;
+const MOBILE_DIALOG_STYLESHEET_ID = "codex-web-mobile-dialog-stylesheet";
+let mobileDialogStylesheetPromise: Promise<void> | null = null;
+
+export function installMobileDialogStylesheet(): Promise<void> {
+  const existingStylesheet = document.getElementById(
+    MOBILE_DIALOG_STYLESHEET_ID,
+  );
+  if (existingStylesheet) {
+    return mobileDialogStylesheetPromise ?? Promise.resolve();
+  }
+
+  if (!mobileDialogStylesheetPromise) {
+    mobileDialogStylesheetPromise = new Promise((resolve) => {
+      const stylesheet = document.createElement("link");
+      stylesheet.id = MOBILE_DIALOG_STYLESHEET_ID;
+      stylesheet.rel = "stylesheet";
+      stylesheet.href = MOBILE_DIALOG_STYLESHEET_URL;
+      stylesheet.onload = () => resolve();
+      stylesheet.onerror = () => {
+        console.error("[codex-web] Could not load mobile dialog styles");
+        resolve();
+      };
+      document.head.append(stylesheet);
+    });
+  }
+
+  return mobileDialogStylesheetPromise;
+}
 
 export type WorkspaceDirectoryEntry = {
   name: string;
@@ -66,20 +103,10 @@ function WorkspaceRootDialog({
   }
 
   useEffect(() => {
-    dialogRef.current?.focus();
+    const unlockPageScroll = lockPageScroll(document, window);
+    dialogRef.current?.focus({ preventScroll: true });
+    return unlockPageScroll;
   }, []);
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent): void {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose(null);
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
 
   const selectedPath = userSelectedPath ?? directoryQuery.data?.directoryPath;
 
@@ -88,6 +115,26 @@ function WorkspaceRootDialog({
     if (selectedPath && !isBusy) {
       onClose(selectedPath);
     }
+  }
+
+  function handleDialogKeyDown(
+    event: React.KeyboardEvent<HTMLDivElement>,
+  ): void {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      onClose(null);
+      return;
+    }
+
+    if (event.key === "Tab") {
+      event.stopPropagation();
+    }
+    trapDialogTabKey(
+      event,
+      event.currentTarget,
+      event.currentTarget.ownerDocument.activeElement,
+    );
   }
 
   const selectedPathValue = selectedPath ?? "";
@@ -104,6 +151,7 @@ function WorkspaceRootDialog({
           "inset-0",
           "z-50",
         ].join(" ")}
+        data-codex-mobile-dialog-overlay="workspace-root"
         data-state="open"
         onClick={() => onClose(null)}
         style={{ pointerEvents: "auto" }}
@@ -132,14 +180,22 @@ function WorkspaceRootDialog({
           "backdrop-blur-xl",
           "w-[520px]",
         ].join(" ")}
+        data-codex-mobile-dialog="workspace-root"
         data-state="open"
+        onKeyDown={handleDialogKeyDown}
         ref={dialogRef}
         role="dialog"
         style={{ pointerEvents: "auto" }}
         tabIndex={-1}
       >
         <form
-          className={["flex", "flex-col", "gap-0"].join(" ")}
+          className={[
+            "flex",
+            "flex-col",
+            "gap-0",
+            "codex-mobile-dialog-form",
+          ].join(" ")}
+          data-codex-mobile-dialog-form="workspace-root"
           onSubmit={handleSubmit}
         >
           <div
@@ -152,7 +208,9 @@ function WorkspaceRootDialog({
               "text-base",
               "leading-normal",
               "tracking-normal",
+              "codex-mobile-dialog-body",
             ].join(" ")}
+            data-codex-mobile-dialog-body="workspace-root"
           >
             <div
               className={[
@@ -220,7 +278,9 @@ function WorkspaceRootDialog({
                     "min-h-56",
                     "flex-col",
                     "gap-3",
+                    "codex-mobile-folder-picker",
                   ].join(" ")}
+                  data-codex-mobile-folder-picker="true"
                 >
                   <div
                     className={[
@@ -229,6 +289,7 @@ function WorkspaceRootDialog({
                       "min-w-0",
                       "flex-1",
                       "flex-col",
+                      "codex-mobile-folder-picker-content",
                     ].join(" ")}
                   >
                     <div
@@ -239,7 +300,9 @@ function WorkspaceRootDialog({
                         "min-w-0",
                         "items-center",
                         "gap-1",
+                        "codex-mobile-path-row",
                       ].join(" ")}
+                      data-codex-mobile-path-row="true"
                     >
                       <button
                         aria-label="Enclosing folder"
@@ -271,6 +334,7 @@ function WorkspaceRootDialog({
                           "justify-center",
                           "!px-0",
                           "shrink-0",
+                          "codex-mobile-parent-button",
                         ].join(" ")}
                         disabled={!parentPath || isBusy}
                         onClick={() => {
@@ -319,12 +383,21 @@ function WorkspaceRootDialog({
                         "overflow-y-auto",
                         "rounded-lg",
                         "border",
+                        "codex-mobile-folder-list-scroll",
                       ].join(" ")}
+                      aria-busy={isBusy}
+                      aria-label="Available folders"
+                      data-codex-mobile-folder-list="true"
+                      role="list"
                     >
                       <div
-                        className={["flex", "w-full", "flex-col", "py-1"].join(
-                          " ",
-                        )}
+                        className={[
+                          "flex",
+                          "w-full",
+                          "flex-col",
+                          "py-1",
+                          "codex-mobile-folder-list",
+                        ].join(" ")}
                       >
                         {isLoading ? (
                           <div
@@ -334,6 +407,7 @@ function WorkspaceRootDialog({
                               "text-sm",
                               "text-token-description-foreground",
                             ].join(" ")}
+                            role="status"
                           >
                             Loading...
                           </div>
@@ -345,6 +419,7 @@ function WorkspaceRootDialog({
                               "text-sm",
                               "text-token-text-error",
                             ].join(" ")}
+                            role="alert"
                           >
                             {queryError}
                           </div>
@@ -363,41 +438,58 @@ function WorkspaceRootDialog({
                           entries.map((entry) => {
                             const selected = entry.path === selectedPath;
                             return (
-                              <button
-                                className={[
-                                  "flex",
-                                  "w-full",
-                                  "min-w-0",
-                                  "self-stretch",
-                                  "items-center",
-                                  "gap-2",
-                                  "px-3",
-                                  "py-1.5",
-                                  "text-left",
-                                  "text-sm",
-                                  "hover:bg-token-foreground/5",
-                                  selected
-                                    ? "bg-token-list-hover-background"
-                                    : "",
-                                ]
-                                  .filter(Boolean)
-                                  .join(" ")}
-                                data-path={entry.path}
+                              <div
+                                className="codex-mobile-folder-row"
+                                data-codex-mobile-folder-row="true"
+                                role="listitem"
                                 key={entry.path}
-                                onClick={() => {
-                                  setUserSelectedPath(entry.path);
-                                }}
-                                onDoubleClick={() => {
-                                  navigateTo(entry.path);
-                                }}
-                                title={entry.path}
-                                type="button"
                               >
-                                <FolderIcon />
-                                <span className={["truncate"].join(" ")}>
-                                  {entry.name}
-                                </span>
-                              </button>
+                                <button
+                                  aria-label={`Select folder ${entry.name}`}
+                                  aria-pressed={selected}
+                                  className={[
+                                    "flex",
+                                    "w-full",
+                                    "min-w-0",
+                                    "self-stretch",
+                                    "items-center",
+                                    "gap-2",
+                                    "px-3",
+                                    "py-1.5",
+                                    "text-left",
+                                    "text-sm",
+                                    "hover:bg-token-foreground/5",
+                                    selected
+                                      ? "bg-token-list-hover-background"
+                                      : "",
+                                    "codex-mobile-folder-select",
+                                  ]
+                                    .filter(Boolean)
+                                    .join(" ")}
+                                  data-path={entry.path}
+                                  onClick={() => {
+                                    setUserSelectedPath(entry.path);
+                                  }}
+                                  onDoubleClick={() => {
+                                    navigateTo(entry.path);
+                                  }}
+                                  title={entry.path}
+                                  type="button"
+                                >
+                                  <FolderIcon />
+                                  <span data-codex-mobile-folder-name="true">
+                                    {entry.name}
+                                  </span>
+                                </button>
+                                <button
+                                  aria-label={`Open folder ${entry.name}`}
+                                  className="codex-mobile-open-folder"
+                                  onClick={() => navigateTo(entry.path)}
+                                  type="button"
+                                >
+                                  Open
+                                </button>
+                              </div>
                             );
                           })
                         )}
@@ -407,90 +499,98 @@ function WorkspaceRootDialog({
                 </div>
               </label>
             </div>
-
+          </div>
+          <div
+            className={[
+              "flex",
+              "w-full",
+              "flex-col",
+              "pt-3",
+              "first:pt-0",
+              "codex-mobile-dialog-footer",
+              "px-5",
+              "pb-5",
+            ].join(" ")}
+            data-codex-mobile-dialog-footer="workspace-root"
+          >
             <div
               className={[
                 "flex",
                 "w-full",
-                "flex-col",
-                "pt-3",
-                "first:pt-0",
+                "items-center",
+                "justify-end",
+                "gap-3",
+                "codex-mobile-dialog-actions",
               ].join(" ")}
+              data-codex-mobile-dialog-actions="workspace-root"
             >
-              <div
+              <button
+                aria-label="Cancel adding a remote project"
                 className={[
+                  "border-token-border",
+                  "user-select-none",
+                  "no-drag",
+                  "cursor-interaction",
                   "flex",
-                  "w-full",
                   "items-center",
-                  "justify-end",
-                  "gap-3",
+                  "gap-1",
+                  "border",
+                  "whitespace-nowrap",
+                  "focus:outline-none",
+                  "disabled:cursor-not-allowed",
+                  "disabled:opacity-40",
+                  "rounded-lg",
+                  "text-token-description-foreground",
+                  "enabled:hover:bg-token-list-hover-background",
+                  "data-[state=open]:bg-token-list-hover-background",
+                  "border-transparent",
+                  "px-4",
+                  "py-1.5",
+                  "text-base",
+                  "leading-[18px]",
                 ].join(" ")}
+                onClick={() => onClose(null)}
+                type="button"
               >
-                <button
-                  className={[
-                    "border-token-border",
-                    "user-select-none",
-                    "no-drag",
-                    "cursor-interaction",
-                    "flex",
-                    "items-center",
-                    "gap-1",
-                    "border",
-                    "whitespace-nowrap",
-                    "focus:outline-none",
-                    "disabled:cursor-not-allowed",
-                    "disabled:opacity-40",
-                    "rounded-lg",
-                    "text-token-description-foreground",
-                    "enabled:hover:bg-token-list-hover-background",
-                    "data-[state=open]:bg-token-list-hover-background",
-                    "border-transparent",
-                    "px-4",
-                    "py-1.5",
-                    "text-base",
-                    "leading-[18px]",
-                  ].join(" ")}
-                  onClick={() => onClose(null)}
-                  type="button"
-                >
-                  Cancel
-                </button>
-                <button
-                  className={[
-                    "border-token-border",
-                    "user-select-none",
-                    "no-drag",
-                    "cursor-interaction",
-                    "flex",
-                    "items-center",
-                    "gap-1",
-                    "border",
-                    "whitespace-nowrap",
-                    "focus:outline-none",
-                    "disabled:cursor-not-allowed",
-                    "disabled:opacity-40",
-                    "rounded-lg",
-                    "bg-token-foreground",
-                    "enabled:hover:bg-token-foreground/80",
-                    "data-[state=open]:bg-token-foreground/80",
-                    "text-token-dropdown-background",
-                    "px-4",
-                    "py-1.5",
-                    "text-base",
-                    "leading-[18px]",
-                  ].join(" ")}
-                  disabled={!selectedPath || isBusy}
-                  type="submit"
-                >
-                  Add project
-                </button>
-              </div>
+                Cancel
+              </button>
+              <button
+                aria-label="Add project from selected folder"
+                className={[
+                  "border-token-border",
+                  "user-select-none",
+                  "no-drag",
+                  "cursor-interaction",
+                  "flex",
+                  "items-center",
+                  "gap-1",
+                  "border",
+                  "whitespace-nowrap",
+                  "focus:outline-none",
+                  "disabled:cursor-not-allowed",
+                  "disabled:opacity-40",
+                  "rounded-lg",
+                  "bg-token-foreground",
+                  "enabled:hover:bg-token-foreground/80",
+                  "data-[state=open]:bg-token-foreground/80",
+                  "text-token-dropdown-background",
+                  "px-4",
+                  "py-1.5",
+                  "text-base",
+                  "leading-[18px]",
+                ].join(" ")}
+                disabled={!selectedPath || isBusy}
+                type="submit"
+              >
+                Add project
+              </button>
             </div>
           </div>
         </form>
 
         <button
-          aria-label="Close"
+          aria-label="Close folder picker"
+          data-codex-mobile-dialog-close="workspace-root"
           className={[
             "no-drag",
             "absolute",
@@ -568,6 +668,7 @@ type WorkspaceRootDialogOptions = {
 export async function openSelectWorkspaceRootDialog({
   listDirectory,
 }: WorkspaceRootDialogOptions): Promise<string | null> {
+  await installMobileDialogStylesheet();
   const activeElement = document.activeElement;
 
   const queryClient = new QueryClient({
@@ -601,14 +702,16 @@ export async function openSelectWorkspaceRootDialog({
     </QueryClientProvider>,
   );
 
-  const result = await promise;
-
-  if (activeElement instanceof HTMLElement) {
-    activeElement.focus();
+  let result: string | null;
+  try {
+    result = await promise;
+  } finally {
+    reactRoot.unmount();
+    restore();
+    if (activeElement instanceof HTMLElement && activeElement.isConnected) {
+      activeElement.focus({ preventScroll: true });
+    }
   }
-
-  reactRoot.unmount();
-  restore();
 
   return result;
 }
