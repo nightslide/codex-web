@@ -1,0 +1,124 @@
+--- a/webview/assets/app-primary-6b28e06666ff.js
++++ b/webview/assets/app-primary-6b28e06666ff.js
+@@ -361766,12 +361766,13 @@
+ function dOr(e) {
+   return DOr.get(e) ?? null;
+ }
+-function fOr({ accept: e, allowMultiple: t = !0, imagesOnly: n } = {}) {
++function fOr({ accept: e, allowMultiple: t = !0, imagesOnly: n, camera: s } = {}) {
+   return new Promise((r) => {
+     let i = document.createElement(`input`);
+     ((i.type = `file`),
+-      (i.multiple = t),
++      (i.multiple = s ? !1 : t),
+       (e != null || n) && (i.accept = e?.join(`,`) ?? `image/*`),
++      s && i.setAttribute(`capture`, `environment`),
+       (i.style.position = `fixed`),
+       (i.style.opacity = `0`),
+       (i.style.pointerEvents = `none`),
+@@ -361832,8 +361833,8 @@
+       : void 0,
+   );
+ }
+-async function hOr(e, { copyFromLocalFile: t, imagesOnly: n }) {
+-  return mOr(e, await fOr({ imagesOnly: n }), { copyFromLocalFile: t });
++async function hOr(e, { copyFromLocalFile: t, imagesOnly: n, camera: r }) {
++  return mOr(e, await fOr({ imagesOnly: n, camera: r }), { copyFromLocalFile: t });
+ }
+ async function gOr(e, t) {
+   let [n] = await t([e]);
+@@ -372410,8 +372411,8 @@
+     },
+     addImageDataUrls: b,
+     addImages: y,
+-    pickBrowserFileDescriptors: async ({ imagesOnly: t }) =>
+-      hOr(e, { copyFromLocalFile: r, imagesOnly: t }),
++    pickBrowserFileDescriptors: async ({ imagesOnly: t, camera: n }) =>
++      hOr(e, { copyFromLocalFile: r, imagesOnly: t, camera: n }),
+     uploadImageAttachment: _,
+     uploadLocalFileAttachments: C,
+   };
+@@ -400792,17 +400793,34 @@
+         })));
+   });
+ function EZr(e) {
++  let mobile = window.matchMedia(`(max-width: 767px) and (pointer: coarse)`).matches;
+   let t = [
+     {
+       disabled: !1,
+       icon: e.supportsFileAttachments ? `paperclip` : `image`,
+       id: `pick-local-files`,
+       label: e.supportsFileAttachments
+-        ? e.labels.filesAndFolders
++        ? mobile ? e.labels.files : e.labels.filesAndFolders
+         : e.labels.addPhotos,
+       run: () => DZr(e, !e.supportsFileAttachments),
+     },
+   ];
++  if (mobile && e.supportsFileAttachments) {
++    t.push({
++      disabled: !1,
++      icon: `image`,
++      id: `pick-local-photos`,
++      label: e.labels.addPhotos,
++      run: () => DZr(e, !0),
++    });
++    t.push({
++      disabled: !1,
++      icon: `image`,
++      id: `capture-local-photo`,
++      label: e.labels.takePhoto,
++      run: () => DZr(e, !0, !0),
++    });
++  }
+   if (e.appshot != null) {
+     let { capture: n, target: r } = e.appshot;
+     t.push({
+@@ -400832,10 +400850,10 @@
+     t
+   );
+ }
+-async function DZr(e, t) {
++async function DZr(e, t, c = !1) {
+   try {
+     let n = e.getAttachmentGeneration(),
+-      { images: r, otherFiles: i } = OZr(await e.pickFiles({ imagesOnly: t })),
++      { images: r, otherFiles: i } = OZr(await e.pickFiles({ imagesOnly: t, camera: c })),
+       a = r.length === 0 ? [] : await e.loadImageDataUrls(r);
+     if (
+       e.getAttachmentGeneration() !== n ||
+@@ -400942,7 +400960,7 @@
+     t[24] !== y || t[25] !== m || t[26] !== b
+       ? ((e = async (e) => {
+           let { imagesOnly: t } = e;
+-          if (m != null) return m({ imagesOnly: t });
++          if (m != null) return m(e);
+           let n = t
+             ? y.formatMessage({
+                 id: `composer.contextAcquisition.filePicker.selectPhotos`,
+@@ -401015,6 +401033,16 @@
+             defaultMessage: `Add photos`,
+             description: `Composer context action for adding photos`,
+           }),
++          files: y.formatMessage({
++            id: `composer.mobile.files`,
++            defaultMessage: `Files`,
++            description: `Mobile composer action for choosing files`,
++          }),
++          takePhoto: y.formatMessage({
++            id: `composer.takePhoto`,
++            defaultMessage: `Take photo`,
++            description: `Mobile composer action for taking a photo`,
++          }),
+           filesAndFolders: y.formatMessage({
+             id: `composer.contextAction.filesAndFolders`,
+             defaultMessage: `Files and folders`,
+@@ -404420,7 +404448,7 @@
+       onAppshotCaptureFinalSnapshot: Vi,
+       onAppshotCaptureSettled: Ws,
+       onAppshotCaptureStarted: Ui,
+-      onPickBrowserFiles: void 0,
++      onPickBrowserFiles: oa.pickBrowserFileDescriptors,
+       setFileAttachments: ki,
+       supportsFileAttachments: Zs,
+       supportsRemoteFileAttachments: We !== `cloud` && Ar !== `local`,

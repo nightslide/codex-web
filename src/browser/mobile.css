@@ -23,13 +23,14 @@
   }
 
   #root {
+    --codex-mobile-safe-bottom: env(safe-area-inset-bottom, 0px);
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
     height: var(--codex-mobile-viewport-height, 100dvh);
     min-height: 0;
     padding-block: env(safe-area-inset-top, 0px)
-      env(safe-area-inset-bottom, 0px);
+      var(--codex-mobile-safe-bottom);
     padding-inline: env(safe-area-inset-left, 0px)
       env(safe-area-inset-right, 0px);
     overflow-x: clip;
@@ -39,16 +40,17 @@
     box-sizing: border-box;
     height: calc(
       var(--codex-mobile-viewport-height, 100dvh) -
-        env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+        env(safe-area-inset-top, 0px) - var(--codex-mobile-safe-bottom)
     ) !important;
     max-height: calc(
       var(--codex-mobile-viewport-height, 100dvh) -
-        env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+        env(safe-area-inset-top, 0px) - var(--codex-mobile-safe-bottom)
     );
     min-height: 0 !important;
   }
 
   html[data-codex-mobile-keyboard-open="true"] #root {
+    --codex-mobile-safe-bottom: 0px;
     position: fixed;
     inset-inline: 0;
     top: var(--codex-mobile-viewport-top, 0px);
