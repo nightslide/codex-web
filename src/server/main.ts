@@ -17,6 +17,7 @@ import Fastify from "fastify";
 import fastifyMultipart from "@fastify/multipart";
 import fastifyStatic from "@fastify/static";
 import { installModuleAliasHook } from "./module";
+import { registerWebview } from "./webview-assets";
 import { glob } from "glob";
 
 type ServerOptions = {
@@ -451,35 +452,15 @@ async function startIpcBridgeServer(options: ServerOptions): Promise<void> {
     return reply.send({ files });
   });
 
+  const webviewRoot = path.resolve(__dirname, "../../scratch/asar/webview");
+
   await app.register(fastifyStatic, {
     root: "/",
     prefix: "/@fs/",
     decorateReply: false,
   });
 
-  await app.register(fastifyStatic, {
-    root: path.resolve(__dirname, "../../scratch/asar/webview"),
-    prefix: "/",
-    preCompressed: true,
-    setHeaders(response) {
-      response.setHeader("Vary", "Accept-Encoding");
-    },
-  });
-
-  app.get("/", async (_request, reply) => {
-    return reply.sendFile("index.html");
-  });
-
-  app.setNotFoundHandler((request, reply) => {
-    if (request.url.startsWith("/@fs/")) {
-      return reply.code(404).send({ error: "Not Found" });
-    }
-
-    if (request.method === "GET") {
-      return reply.sendFile("index.html");
-    }
-    return reply.code(404).send({ error: "Not Found" });
-  });
+  await registerWebview(app, webviewRoot);
 
   app.server.on("upgrade", (request, socket, head) => {
     const requestUrl = request.url ?? "/";
